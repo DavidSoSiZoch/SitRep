@@ -4,20 +4,21 @@ author: "HZI Analysis, Output and Research"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   bookdown::word_document2:
-    reference_docx: template.docx
+    reference_docx: text/template.docx
     number_sections: true
     fig_width: 7
     fig_height: 6
     fig_caption: yes
-bibliography: references.bib
+bibliography: text/references.bib
+link-citations: yes
 ---
 ```{r setup, include = FALSE}
-#setting knitr chunk options
+# setting knitr chunk options
 knitr::opts_chunk$set(echo = FALSE, tab.cap.style = "Table Caption")
 ```
 
-```{r load packages, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-#loading packages
+```{r load_packages, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+# loading packages
 library(plyr)
 library(dplyr)
 library(tidyverse)
@@ -42,14 +43,34 @@ library(viridis)
 library(readtext)
 library(XML)
 library(rlang)
+library(mgsub)
 ```
 
+```{r source_code, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+# loading source code
+source("R/INCIDENCE7.R")
+source("R/PREP_POPULATION_DATA.R")
+source("R/GET_POPULATION_DATA.R")
+source("R/PREP_SORMAS_DATA.R")
+source("R/GET_SORMAS_DATA.R")
+source("R/DF0_COUNTY_DATA.R")
+source("R/GET_TIMESERIES_DATA.R")
+source("R/GET_AGEGROUP_GENDER_DATA.R")
+source("R/PLOT_TIMESERIES.R")
+source("R/PLOT_AGEGROUP_GENDER.R")
+source("R/GET_TABLE_KEYS.R")
+source("R/GET_MASTER_TABLE.R")
+source("R/PLOT_COUNTY_MAP.R")
+source("R/PREP_GEO_DATA.R")
+source("R/GET_OVERVIEW_TABLE.R")
+source("R/GET_STATE_TABLE.R")
+```
 
 ```{r flextable settings, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-
-set_flextable_defaults(big.mark = " ", 
+# setting flextable options
+set_flextable_defaults(big.mark = " ",
   font.size = 9, theme_fun = theme_vanilla,
-  padding.bottom = 6, 
+  padding.bottom = 6,
   padding.top = 6,
   padding.left = 5,
   padding.right = 5,
@@ -57,87 +78,29 @@ set_flextable_defaults(big.mark = " ",
 
 ```
 
-```{r date}
-#setting the date
-#last date in testdata is 15 of April 2021
-today = as.Date("2021-04-15")
-# in real application instead:
-# today = Sys.Date()
-
-#setting date range for last week
-daterange_week <- seq(today-6, by = "day", length.out = 7)
-
-#setting date range for week before yesterday
-y_daterange_week <- seq(today-7, by = "day", length.out = 7)
-
-
-```
-
-```{r text}
+```{r text_import}
 # reading in text for situation report to dataframe
-text <- readtext("text/*.docx")
-```
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-# loading source code
-source("INCIDENCE7.R")
-source("TOT_CASES.R")
-source("PREP_POPULATION_DATA.R")
-source("GET_POPULATION_DATA.R")
-source("PREP_SORMAS_DATA.R")
-source("GET_SORMAS_DATA.R")
-source("DF0_COUNTY_DATA.R")
+txt_files<- readtext::readtext("text/*.docx")
+text <- data.frame(txt_files[,-1], row.names=txt_files[,1])
 ```
 
 ```{r matching_key, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-#import matching key
-matching_key <- readxl::read_xlsx("matching_key.xlsx")
-
+# importing matching key
+matching_key <- readxl::read_xlsx("data/matching_key.xlsx")
 ```
-
 
 ```{r prep_pop_data, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE }
 ###################
 # POPULATION DATA #
 ###################
 
-#load raw population data file 
-load("population_data.rda")
+# loading raw population data file 
+load("data/population_data.rda")
 
-#get prepared pop data for most recent year and impute data for diverse gender
+# geting prepared pop data for most recent year and impute data for diverse gender
 pop_data <- PREP_POPULATION_DATA(population_data,
                                  divers_imputation = TRUE)
-
-#look at timing
-#system.time(PREP_POPULATION_DATA(population_data, divers_imputation = TRUE))
-
-# get population data by county and state 
-population_data_county <- GET_POPULATION_DATA(pop_data,
-                                              county,
-                                              state)
-
-#get population data by age groups and gender
-age_data <- GET_POPULATION_DATA(pop_data,
-                                age_group,
-                                gender)
-
-#look at timing
-#system.time(GET_POPULATION_DATA(pop_data, age_group, gender))
-
-# get total population
-tot_pop <- sum(pop_data$population)
-
-#join population data by county with matching key
-population_data_county <- dplyr::left_join(matching_key,
-                                           population_data_county,
-                                           by = "county") %>% 
-  dplyr::select(state.x, county, health_authority, population) %>% 
-  dplyr::rename(state = state.x)
-
-
 ```
-
-
 
 ```{r prep_sormas_data, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 ###############
@@ -145,489 +108,178 @@ population_data_county <- dplyr::left_join(matching_key,
 ###############
 
 #load raw sormas test data file
-load("sormas_testdata.rda")
+load("data/sormas_testdata.rda")
 
 # persons is the dataframe of interest for the sitrep 
-persons <- sormas_testdata$persons
-
-#use for joining health_authorities to counties and states
-d <- PREP_SORMAS_DATA(sormas_persons = persons,
+# use matching_key for joining health_authorities to counties and states
+d <- PREP_SORMAS_DATA(sormas_persons = sormas_testdata$persons,
                       matching_key = matching_key)
-
-
-##GETTING TOTALS##
-
-
-# get aggregate data on variables of interest on county level
-t_county <- GET_SORMAS_DATA(d,
-                            NEW = FALSE,
-                            level = "county",
-                            "case_category",
-                            "hospitalized",
-                            "died"
-                            )
-
-# get aggregate data on variables of interest on state level
-t_state <- GET_SORMAS_DATA(d,
-                           NEW = FALSE,
-                           level = "state",
-                           "case_category",
-                           "hospitalized",
-                           "died"
-                           )
-
-# get aggregate data on variables of interest on country level
-t_country <- GET_SORMAS_DATA(d,
-                             NEW = FALSE,
-                             level = "residencecountry",
-                             "case_category",
-                             "hospitalized",
-                             "died"
-                             )
-
-##GETTING NEWS##
-
-
-# news on county level
-n_county <- GET_SORMAS_DATA(d,
-                            NEW = TRUE,
-                            level = "county",
-                            "case_category",
-                            "hospitalized",
-                            "died"
-                            )
-
-# news on state level
-n_state <- GET_SORMAS_DATA(d,
-                           NEW = TRUE,
-                           level = "state",
-                           "case_category",
-                           "hospitalized",
-                           "died"
-                           )
-
-# news on country level
-n_country <- GET_SORMAS_DATA(d,
-                             NEW = TRUE,
-                             level = "residencecountry",
-                             "case_category",
-                             "hospitalized",
-                             "died"
-                             )
-
-##JOINING##
-
-
-# joining county totals
-complete_county_totals <- dplyr::left_join(t_county$case_category,
-                                           t_county$hospitalized,
-                                           by = "county") %>% 
-                    dplyr::left_join(.,
-                                     t_county$died,
-                                     by = "county")
-
-# joining county news
-complete_county_news <- dplyr::full_join(n_county$case_category,
-                                         n_county$hospitalized,
-                                         by = "county") %>% 
-                    dplyr::full_join(.,
-                                     n_county$died,
-                                     by = "county")
-
-# joining complete county totals and news and population_data_county
-complete_county_data <- dplyr::left_join(complete_county_totals,
-                                         population_data_county,
-                                         by = "county") %>% 
-  dplyr::left_join(.,
-                   complete_county_news,
-                   by = "county") %>% 
-  base::replace(is.na(.), 0)
-
-## UPDATING ##
-
-
-#getting df of zeros on county data level
-df0 <- DF0_COUNTY_DATA(matching_key)
-
-#updating df0 with latest complete county data
-county_final <- dplyr::rows_update(df0,
-                                   complete_county_data,
-                                   by = "county")
-
 ```
 
-```{r prep_timeseries, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+```{r master_table, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+################
+# MASTER TABLE #
+################
 
-######################
-## TIME SERIES DATA ##
-######################
-
-
-#time series data reporting date
-ts_data_reporting <- persons %>% 
-  dplyr::group_by(reporting_date) %>% 
-  dplyr::count(case_category) %>% 
-  tidyr::pivot_wider(names_from = case_category, values_from = n)
-
-colnames(ts_data_reporting) <- c("dates",
-                                 "confirmed_rep",
-                                 "none_rep",
-                                 "suspected_rep"
-                                 )  
-
-# time series data onset date
-ts_data_onset <- persons %>% 
-  dplyr::group_by(onset_date) %>% 
-  dplyr::count(case_category) %>% 
-  tidyr::pivot_wider(names_from = case_category, values_from = n)
-
-colnames(ts_data_onset) <- c("dates",
-                             "confirmed_on",
-                             "none_on",
-                             "suspected_on"
-                             )
-
-#time series data hospitalizations
-ts_data_hosp <- persons %>% 
-  dplyr::group_by(hospitalization_date) %>% 
-  dplyr::count(hospitalized) %>% 
-  tidyr::pivot_wider(names_from = hospitalized, values_from = n)
-
-colnames(ts_data_hosp) <- c("dates",
-                            "true_hosp",
-                            "false_hosp",
-                            "na_hosp"
-                            )
-
-#Building one timeseries dataset
-
-dates <- seq.Date(as.Date("2020-01-04"),
-                  as.Date("2021-05-30"),
-                  by = "day"
-                  )
-
-timeseries_data <- data.frame(dates)
-
-#joining time series data
-
-timeseries_data <- dplyr::left_join(timeseries_data,
-                                    ts_data_reporting,
-                                    by = "dates") %>% 
-  dplyr::left_join(., ts_data_onset, by = "dates") %>% 
-  dplyr:: left_join(., ts_data_hosp, by = "dates")
-
-#get data on deaths and death reporting date by age and sex (all time)
-death_data <- persons %>% 
-  #dplyr::filter(reporting_date_death %in% seq(today-6,today,by="day")) %>% 
-  dplyr::group_by(sex, age_group = cut(age, breaks = c(seq(-1,79,5),100))) %>% 
-  dplyr::count(died) %>% 
-  tidyr::pivot_wider(names_from = died, values_from = n) %>% 
-  dplyr::arrange(sex)
-
-colnames(death_data) <- c("sex","age_group1", "na","false","true")
-
-# impute data for diverse in A64..69 A69..74 and A80+
-df_d <- data.frame(sex = c("d","d","d"),
-                    age_group1 = c("(64,69]", "(69,74]", "(79,100]"),
-                    na= rep(NA,3),
-                    false = rep(NA,3),
-                    true = rep(NA,3))
-#impute data for diverse in the three age groups
-death_data <- rbind(death_data, df_d) %>%
-  dplyr::arrange(sex) %>%
-  dplyr::ungroup()
-
+## getting master table, which is used for the overview table, state table and county map
+master_table <- GET_MASTER_TABLE(population_data = pop_data,
+                        persons_sormasdata = d,
+                        key = matching_key)
 ```
-
 
 ```{r prep_geodata, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
-
 ############
 # GEO DATA #
 ############
 
+## importing geo data
+geo_shapes <- sormasdatagen::GetGeoData()$geoshapes
 
-# import
-geo_data <- GetGeoData()
-geo_shapes <- GetGeoData()$geoshapes
-
-# Rename column "region" to "health_authority" in geo_shapes
-geo_shapes <- dplyr::rename(geo_shapes, health_authority = region)
-
-# join geo shapes with county data on health_authority
-geo_shapes <- dplyr::left_join(geo_shapes,
-                               county_final,
-                               by ="health_authority") %>% 
-  base::replace(is.na(.), 0)
-
+# prepping geo data
+geo_shapes_data <- PREP_GEO_DATA(geo_shapes = geo_shapes,
+                                 master_table = master_table)
 ```
 
-```{r calc_incidence, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+```{r prep_timeseries, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+####################
+# TIME SERIES DATA #
+####################
 
-##############
-# INCIDENCES #
-##############
+## getting timeseries data
+ts_data <- GET_TIMESERIES_DATA(d)
+```
 
-## CURRENT 7 DAY INCIDENCES
+```{r prep_agegroup_gender, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+##################
+# DEATH INC DATA #
+##################
 
-# country lvl: NUTS-1
-inc_country <- INCIDENCE7(persons_sormasdata = d,
-                          population_data = pop_data,
-                          daterange = daterange_week,
-                          level = "country")
+## getting agegroup & gender data for death incidences
+agegroup_gender_data <- GET_AGEGROUP_GENDER_DATA(d, pop_data)
+```
 
-# state lvl: NUTS-2
-inc_state <- INCIDENCE7(persons_sormasdata = d,
-                        population_data = pop_data,
-                        daterange = daterange_week,
-                        level = "state")
+```{r building_tables}
+##########
+# TABLES #
+##########
 
-# county lvl: NUTS-3
-inc_county <- INCIDENCE7(persons_sormasdata = d,
-                        population_data = pop_data,
-                        daterange = daterange_week,
-                        level = "county")
+## getting overview table
+overview_table <- GET_OVERVIEW_TABLE(master_table = master_table)
 
-
-## YESTERDAY'S 7 DAY INCIDENCES
-# ONLY NEEDED FOR COUNTRY: NUTS-1 AND STATE: NUTS-2
-
-# country lvl: NUTS-1
-y_inc_country <- INCIDENCE7(persons_sormasdata = d,
-                          population_data = pop_data,
-                          daterange = y_daterange_week,
-                          level = "country")
-
-# state lvl: NUTS-2
-y_inc_state <- INCIDENCE7(persons_sormasdata = d,
-                        population_data = pop_data,
-                        daterange = y_daterange_week,
-                        level = "state")
+## getting state table
+state_table <- GET_STATE_TABLE(master_table = master_table)
+```
 
 
-## BUILD DF FOR INCIDENCES ON COUNTRY AND STATE LEVEL
-# CALC CHANGE IN INC SINCE YESTERDAY
+```{r values_to_text}
 
-# country lvl: NUTS-1
-df_inc_country <- y_inc_country %>% 
-  dplyr::rename(y_Incidence = Incidence) %>% 
-  base::cbind(inc_country, .) %>% 
-  dplyr::mutate("Change since yesterday" = Incidence - y_Incidence) %>% 
-  dplyr::select(-y_Incidence) %>% 
-  dplyr::rename("7 day Incidence" = Incidence)
-  
-# state lvl: NUTS-2
-df_inc_state <- dplyr::left_join(inc_state, y_inc_state, by = "state") %>% 
-  dplyr::mutate("Change since yesterday" = Incidence.x - Incidence.y) %>% 
-  dplyr::rename("7 day incidence" = Incidence.x) %>% 
-  dplyr::select(-Incidence.y)
+# keys for table values
+pattern_vec <- c("#Otc",
+                 "#Onc",
+                 "#Oth",
+                 "#Onh",
+                 "#Otd",
+                 "#Ond",
+                 "#Oi7",
+                 "#Oc7"
+                 )
 
+replacement_vec <- c(overview_table$`Total cases`,
+                     overview_table$`New cases`,
+                     overview_table$`Total hospitalizations`,
+                     overview_table$`New hospitalizations`,
+                     overview_table$`Total deaths`,
+                     overview_table$`New deaths`,
+                     overview_table$`7 day Incidence`,
+                     overview_table$`Change since yesterday`,
+                     overview_table$`7 Day Incidence`,
+                     overview_table$`Change in 7 day incidence since yesterday`
+                     )
+
+# pattern and replacement vectors to be imported from separate file
+
+# importing values from data into text
+text$txt_files....1. <- mgsub(text$txt_files....1., pattern = pattern_vec,
+                              replacement = replacement_vec 
+                              ) 
 ```
 
 
 # Introduction
-
-`r paste(text[1,2])`
+`r text["INTRO.docx",1]` Figure \@ref(tab:OverviewTable)
 
 ## Overview
-`r paste(text[2,2])`
+`r text["OVERVIEW.docx",1]`
 
 ```{r OverviewTable, error=FALSE, message=FALSE, warning=FALSE, tab.cap= "Overview Table"}
-
-# build overview table
-overview_table <- county_final %>% 
-  dplyr::summarise("Total cases" = sum(case_category_confirmed),
-                   "New cases" = sum(new_case_category_confirmed),
-                   "Total hospitalizations" = sum(hospitalized_TRUE),
-                   "New hospitalizations" = sum(new_hospitalized_TRUE),
-                   "Total deaths" = sum(died_TRUE),
-                   "New deaths" = sum(new_died_TRUE)
-                   ) %>% 
-  dplyr::bind_cols(., df_inc_country)
-
-#display overview table
-flextable::flextable(overview_table) %>% 
-  flextable::width(width = 6.6/ncol(overview_table)) %>%
-  flextable::height(height = 0.4)
+#displaying overview table
+flextable::flextable(overview_table)
 ```
 
-
-
 # Epidemic Dynamic
-`r paste(text[3,2])`
+`r text["EPID_DYN.docx",1]` 
 
 ## Time series data
-`r paste(text[4,2])`
+`r text["TIME_SER.docx",1]`
 
 ```{r TimeSeriesData, warning=FALSE, message=FALSE, error=FALSE, fig.cap="Time series data"}
-#theme
-theme_set(theme_bw())
-
-#Timeseries confirmed cases by reporting date
-p1 <- ggplot(ts_data_reporting, aes(x=dates, y =confirmed_rep )) +
-  geom_line(color = "steelblue", size =1.5)+
-  labs(x="", y="", subtitle = "Cases by reporting date")+
-  scale_x_date(date_breaks = "3 months")+
-  xlim(as.Date("2020-01-01"), today)
-
-p2 <- ggplot(ts_data_onset, aes(x = dates, y = confirmed_on))+
-  geom_line(color = "darkred", size = 1.5)+
-  labs(x="", y="", subtitle = "Cases by onset of disease")+
-  scale_x_date(date_breaks = "3 months")+
-  xlim(as.Date("2020-01-01"), today)
-
-p3 <- ggplot(ts_data_hosp, aes(x = dates, y = true_hosp))+
-  geom_line(color = "#E69F00", size = 1)+
-  labs(x="", y="", subtitle = "Hospitalizations by hospitalisation date")+
-  scale_x_date(date_breaks = "3 months")+
-  xlim(as.Date("2020-01-01"), today)
-
-grid.arrange(p1,p2,p3)
+# plotting timeseries data
+PLOT_TIMESERIES(timeseries_data = ts_data)
 ```
 
 \newpage
 
 ## Death incidences by age groups
-`r paste(text[5,2])`
+`r text["DEATH_INC.docx",1]`
 
 ```{r DeathIncidencesDistribution, warning=FALSE, message=FALSE, error=FALSE, fig.cap ="Death Incidences Distribution"}
-#Distribution of death incidences by 5 year age groups & sex (male/female/other)
 
-# join death and age data
-data_death_inc <- cbind(death_data, age_data)
+# plotting death incidences for genders and age groups 
+# possible variables of interest:
+# tot_death_inc = total death incidence
+# tot_hosp_inc = total hospitalization incidence
+# tot_case_inc = total case incidence
 
-#first replace NA with 0 in data_death_inc
-data_death_inc[is.na(data_death_inc)] <- 0
-
-#drop duplicate columns sex & age_group1
-data_death_inc <- data_death_inc %>% 
-  dplyr::select(age_group, gender, population, na, false, true)
-
-#calculate death incidence
-data_death_inc <- data_death_inc %>% 
-  dplyr::mutate( death_inc = true*100000 / population , .keep = "all")
-
-
-# build 3 bar plots, one for each gender
-
-p4 <- data_death_inc %>% 
-  dplyr::filter(gender == "f") %>% 
-  ggplot(aes(x=age_group, y = death_inc))+
-  geom_bar(stat = "identity")+
-  labs(x="", y="", subtitle = "Female")+
-  theme(axis.text.x = element_text(angle = 90, hjust =1))+
-  geom_hline(yintercept = 0)+
-  lims(y=c(0,0.5))
-
-p5 <- data_death_inc %>% 
-  dplyr::filter(gender == "m") %>% 
-  ggplot(aes(x=age_group, y = death_inc))+
-  geom_bar(stat = "identity")+
-  labs(x="", y="", subtitle = "Male")+
-  theme(axis.text.x = element_text(angle = 90, hjust =1))+
-  geom_hline(yintercept = 0)+
-  lims(y=c(0,0.5))
-
-p6 <- data_death_inc %>% 
-  dplyr::filter(gender == "d") %>% 
-  ggplot(aes(x=age_group, y = death_inc))+
-  geom_bar(stat = "identity")+
-  labs(x="", y="", subtitle = "Divers")+
-  theme(axis.text.x = element_text(angle = 90, hjust =1))+
-  geom_hline(yintercept = 0)+
-  lims(y=c(0,0.5))
-#NB: death incidence for diverse gender is always 0
-
-grid.arrange(p4,p5,p6)
+PLOT_AGEGROUP_GENDER(agegroup_gender_data = agegroup_gender_data, voi = "tot_death_inc")
 ```
 
 
 # Regional Situation
-`r paste(text[6,2])`
+`r text["REG_SIT.docx",1]`
 
 \newpage
 
 ## State level table
-`r paste(text[7,2])`
+`r text["STATE_TBL.docx",1]`
 
 ```{r StateLevelTable, warning = FALSE, tab.cap= "State level table", tab.cap="State Level Table"}
-
-# build state table
-state_table <- county_final %>% 
-  dplyr::group_by(state) %>% 
-  dplyr::summarise("Total cases" = sum(case_category_confirmed),
-                   "New cases" = sum(new_case_category_confirmed),
-                   "Total hospitalizations" = sum(hospitalized_TRUE),
-                   "New hospitalizations" = sum(new_hospitalized_TRUE),
-                   "Total deaths" = sum(died_TRUE),
-                   "New deaths" = sum(new_died_TRUE)
-                   ) %>% 
-  dplyr::left_join(., df_inc_state, by = "state") %>% 
-  dplyr::rename(State = state)
-  
-# display table   
-flextable::flextable(state_table) %>%
-  flextable::width(width = 6.6/ncol(state_table)) %>%
-  flextable::height(height = 0.4)
-
+# displaying state table
+flextable::flextable(state_table)
 ```
 
 \newpage
 ## County level map
-`r paste(text[8,2])`
+`r text["COUNTY_MAP.docx",1]`
 
 ```{r CountyLevelMap, echo = FALSE, warning=FALSE, message=FALSE, fig.cap= "County level map"}
-
-# join county incidences with geoshapes
-geo_shapes <- dplyr::left_join(geo_shapes, inc_county, by = "county") %>% 
-  base::replace(is.na(.), 0)
-
-# build map
-ggplot(geo_shapes) +
-  geom_sf(aes(fill = Incidence))+
-  labs(x = "", y = "")+
-  theme(axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks = element_blank(),
-        panel.background = element_rect(fill = "cornsilk", color = "black"))+
-         scale_fill_viridis(option= "viridis",
-        #                    limits = c(0, 30),
-        #                    breaks=c(0,10,20,30),
-                            name="Seven day incidence") +
-        annotation_north_arrow(location = "br", which_north = "true",
-        style = north_arrow_fancy_orienteering)
-
-        # scale_fill_gradientn(colors = viridis_pal()(9), limits=c(0, 500), 
-        #                na.value = "grey")+
-        #annotation_scale(location = "br")
-
-
+# displaying county map
+PLOT_COUNTY_MAP(geo_shapes_data = geo_shapes_data)
 ```
 
 \newpage
 
 # Remarks
-`r paste(text[9,2])`
+`r text["REMARKS.docx",1]`
 
 As illustrated in Figure \@ref(fig:TimeSeriesData) there was a spike in
 all three time series in the third quarter of 2020.
-
-Figure \@ref(fig:DeathIncidencesDistribution) and Figure \@ref(fig:CountyLevelMap) provide
-a detailed overview of the regional situation across Germany.
 
 Table \@ref(tab:StateLevelTable) and Table \@ref(tab:OverviewTable) show summary statistics.
 
 [@lang1997income]
 
-[@stiglitz1985general]
-
-[@munshi2003networks]
-
-[@rref]
-
 [@dplyrref]
 
-[@tidyrref]
-
 \newpage
-# References
+
+#References
