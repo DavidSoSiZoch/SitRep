@@ -170,7 +170,6 @@ overview_table <- GET_OVERVIEW_TABLE(master_table = master_table)
 state_table <- GET_STATE_TABLE(master_table = master_table)
 ```
 
-
 ```{r values_to_text}
 
 # keys for table values
@@ -203,7 +202,6 @@ text$txt_files....1. <- mgsub(text$txt_files....1., pattern = pattern_vec,
                               replacement = replacement_vec 
                               ) 
 ```
-
 
 # Introduction
 `r text["INTRO.docx",1]` Figure \@ref(tab:OverviewTable)
@@ -282,4 +280,4 @@ Table \@ref(tab:StateLevelTable) and Table \@ref(tab:OverviewTable) show summary
 
 \newpage
 
-#References
+# References
