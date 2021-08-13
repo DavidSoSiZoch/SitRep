@@ -47,23 +47,9 @@ library(mgsub)
 ```
 
 ```{r source_code, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-# loading source code
-source("R/INCIDENCE7.R")
-source("R/PREP_POPULATION_DATA.R")
-source("R/GET_POPULATION_DATA.R")
-source("R/PREP_SORMAS_DATA.R")
-source("R/GET_SORMAS_DATA.R")
-source("R/DF0_COUNTY_DATA.R")
-source("R/GET_TIMESERIES_DATA.R")
-source("R/GET_AGEGROUP_GENDER_DATA.R")
-source("R/PLOT_TIMESERIES.R")
-source("R/PLOT_AGEGROUP_GENDER.R")
-source("R/GET_TABLE_KEYS.R")
-source("R/GET_MASTER_TABLE.R")
-source("R/PLOT_COUNTY_MAP.R")
-source("R/PREP_GEO_DATA.R")
-source("R/GET_OVERVIEW_TABLE.R")
-source("R/GET_STATE_TABLE.R")
+# loading source code from R folder
+file.sources <- list.files("R",full.names=TRUE) 
+sapply(file.sources,source)
 ```
 
 ```{r flextable settings, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
