@@ -46,7 +46,7 @@ library(rlang)
 library(mgsub)
 ```
 
-```{r source_code, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+```{r source_code, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
 # loading source code from R folder
 file.sources <- list.files("R",full.names=TRUE) 
 sapply(file.sources,source)
