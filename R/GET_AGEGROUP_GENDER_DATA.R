@@ -3,7 +3,7 @@ GET_AGEGROUP_GENDER_DATA <- function(persons_sormasdata, population_data){
   require(dplyr)
   
   #get dataframe on population in age groups & gender
-  pop_df <- pop_data %>% 
+  pop_df <- population_data %>% 
     dplyr::group_by(age_group, gender) %>% 
     dplyr::summarise(population = sum(population)) %>% 
     dplyr::arrange(gender)

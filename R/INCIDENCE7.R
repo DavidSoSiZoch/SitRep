@@ -17,7 +17,7 @@ INCIDENCE7 <- function(persons_sormasdata, population_data, daterange, level = "
       dplyr::group_by(state) %>% 
       dplyr::summarise(s_pop = sum(population))
     
-    state_n_cases <- d %>% 
+    state_n_cases <- persons_sormasdata %>% 
       dplyr::group_by(state) %>% 
       dplyr::filter(reporting_date %in% daterange) %>% 
       dplyr::filter(case_category == "confirmed") %>% 
@@ -35,7 +35,7 @@ INCIDENCE7 <- function(persons_sormasdata, population_data, daterange, level = "
       dplyr::group_by(county) %>% 
       dplyr::summarise(c_pop = sum(population))
     
-    county_n_cases <- d %>% 
+    county_n_cases <- persons_sormasdata %>% 
       dplyr::group_by(county) %>% 
       dplyr::filter(reporting_date %in% daterange) %>% 
       dplyr::filter(case_category == "confirmed") %>% 

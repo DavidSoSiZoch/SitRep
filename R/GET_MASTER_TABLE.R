@@ -1,11 +1,12 @@
 GET_MASTER_TABLE <- function(population_data,
                              persons_sormasdata,
-                             key = matching_key){ # pop_data, d, geo_shapes
-  require(tidyr)
-  require(dplyr)
-  source("R/GET_POPULATION_DATA.R")
-  source("R/GET_SORMAS_DATA.R")
-  source("R/DF0_COUNTY_DATA.R")
+                             key = matching_key){
+  # depends on the following:
+  # require(tidyr)
+  # require(dplyr)
+  # source("R/GET_POPULATION_DATA.R")
+  # source("R/GET_SORMAS_DATA.R")
+  # source("R/DF0_COUNTY_DATA.R")
   
   ## POPULATION DATA
   

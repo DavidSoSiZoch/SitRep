@@ -4,6 +4,8 @@ GET_TIMESERIES_DATA <- function(persons_sormasdata){
   
   #CALLING VECTOR OF DATES AND CREATING DATAFRAME
   #dates would be dynamic in real application!
+  # for example:
+  # dt =  seq(Sys.Date()-365, Sys.Date(), by = "day")
   
   dt <- seq.Date(as.Date("2020-01-04"),
                     as.Date("2021-05-30"),

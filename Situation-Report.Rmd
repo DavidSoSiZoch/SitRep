@@ -28,14 +28,8 @@ library(ggplot2)
 library(ggspatial)
 library(gridExtra)
 library(sormasdatagen)
-library(cowplot)
-library(stringr)
 library(sp)
 library(sf)
-library(geojsonio)
-library(broom)
-library(fuzzyjoin)
-library(rio)
 library(Rcpp)
 library(writexl)
 library(readxl)
@@ -47,13 +41,17 @@ library(mgsub)
 ```
 
 ```{r source_code, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
-# loading source code from R folder
-file.sources <- list.files("R",full.names=TRUE) 
-sapply(file.sources,source)
+# Loading the source code for the newly defined functions that are used in this
+# code from the /R folder in the SitRep Repository
+
+function_sources <- list.files("R", full.names=TRUE) 
+sapply(function_sources, source)
 ```
 
 ```{r flextable settings, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-# setting flextable options
+# In this SitRep the package 'flextable' is used to display tables in word.
+# Here we set the default options for the flextable package.
+
 set_flextable_defaults(big.mark = " ",
   font.size = 9, theme_fun = theme_vanilla,
   padding.bottom = 6,
@@ -61,18 +59,23 @@ set_flextable_defaults(big.mark = " ",
   padding.left = 5,
   padding.right = 5,
   background.color = "#EFEFEF")
-
 ```
 
 ```{r text_import}
-# reading in text for situation report to dataframe
+# The text that is displayed in the SitRep is taken from the .docx files in the
+# /text folder of the SitRep Repository. 
+# Here we read the text files as character strings into a dataframe.
+# The names of the text files are the rownames in the dataframe.
+
 txt_files<- readtext::readtext("text/*.docx")
 text <- data.frame(txt_files[,-1], row.names=txt_files[,1])
 ```
 
 ```{r matching_key, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-# importing matching key
-matching_key <- readxl::read_xlsx("data/matching_key.xlsx")
+# Importing the matching key, a table which matches health authorities from the 
+# SORMAS data to german counties and states. 
+
+healthauthority_county_key <- readxl::read_xlsx("data/matching_key.xlsx")
 ```
 
 ```{r prep_pop_data, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE }
@@ -80,11 +83,12 @@ matching_key <- readxl::read_xlsx("data/matching_key.xlsx")
 # POPULATION DATA #
 ###################
 
-# loading raw population data file 
-load("data/population_data.rda")
+# Loading the raw population data from the population_data.rda file in the 
+# /data folder, and preparing it by fitering for the most recent year and
+# imputing data for the diverse gender.
 
-# geting prepared pop data for most recent year and impute data for diverse gender
-pop_data <- PREP_POPULATION_DATA(population_data,
+load("data/population_data.rda")
+population_data <- PREP_POPULATION_DATA(population_data,
                                  divers_imputation = TRUE)
 ```
 
@@ -93,13 +97,15 @@ pop_data <- PREP_POPULATION_DATA(population_data,
 # SORMAS DATA #
 ###############
 
-#load raw sormas test data file
-load("data/sormas_testdata.rda")
+# Loading the raw SORMAS test data file from the /data folder.
+# 'persons' is the dataframe of interest for the SitRep. 
+# Preparing the SORMAS test data by combining it with the matching key,
+# and thus assigning the appropriate county and state variable to each 
+# observation in the 'persons' dataframe of the SORMAS testdata.
 
-# persons is the dataframe of interest for the sitrep 
-# use matching_key for joining health_authorities to counties and states
-d <- PREP_SORMAS_DATA(sormas_persons = sormas_testdata$persons,
-                      matching_key = matching_key)
+load("data/sormas_testdata.rda")
+sormas_persons <- PREP_SORMAS_DATA(sormas_persons = sormas_testdata$persons,
+                      matching_key = healthauthority_county_key)
 ```
 
 ```{r master_table, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
@@ -107,10 +113,19 @@ d <- PREP_SORMAS_DATA(sormas_persons = sormas_testdata$persons,
 # MASTER TABLE #
 ################
 
-## getting master table, which is used for the overview table, state table and county map
-master_table <- GET_MASTER_TABLE(population_data = pop_data,
-                        persons_sormasdata = d,
-                        key = matching_key)
+# Getting the master table, which is used for creation of the overview table,
+# state table and county map. 
+# Each observation of the master table is one county.
+# For each county the master table includes data on population,
+# the total number of cases, hsopitalizations and deaths, 
+# the number of new hospitalizations, cases and deaths,
+# the values for the 7-day incidence and the the change in the 7-day incidence.
+# Additionally, the table also contains the values for the
+# 7-day incidence and change in the 7-day incidence on state and country level.
+
+master_table <- GET_MASTER_TABLE(population_data = population_data,
+                        persons_sormasdata = sormas_persons,
+                        key = healthauthority_county_key)
 ```
 
 ```{r prep_geodata, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
@@ -118,10 +133,11 @@ master_table <- GET_MASTER_TABLE(population_data = pop_data,
 # GEO DATA #
 ############
 
-## importing geo data
-geo_shapes <- sormasdatagen::GetGeoData()$geoshapes
+# Importing geo data on shapes of counties of Germany, and 
+# preparing it by matching it with the master_table using the matching key
+# between healthauthorities and counties.
 
-# prepping geo data
+geo_shapes <- sormasdatagen::GetGeoData()$geoshapes
 geo_shapes_data <- PREP_GEO_DATA(geo_shapes = geo_shapes,
                                  master_table = master_table)
 ```
@@ -131,8 +147,16 @@ geo_shapes_data <- PREP_GEO_DATA(geo_shapes = geo_shapes,
 # TIME SERIES DATA #
 ####################
 
-## getting timeseries data
-ts_data <- GET_TIMESERIES_DATA(d)
+# Getting timeseries data table, which is based on a vector of dates.
+# In this example SitRep we use the dates from 2020-01-04 to 2021-05-30.
+# In the real application a dynamically defined vector of all the dates of the
+# last 365 days can be used.
+# Each observation is one date.
+# For each date there are variables on the number of reported cases,
+# hospitalizations and deaths on that day, as well as number of cases by
+# date of onset of disease.
+
+ts_data <- GET_TIMESERIES_DATA(sormas_persons)
 ```
 
 ```{r prep_agegroup_gender, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
@@ -140,8 +164,13 @@ ts_data <- GET_TIMESERIES_DATA(d)
 # DEATH INC DATA #
 ##################
 
-## getting agegroup & gender data for death incidences
-agegroup_gender_data <- GET_AGEGROUP_GENDER_DATA(d, pop_data)
+# Getting data on the total number of cases, hospitalizations and
+# deaths per population group, as well as the total incidence
+# of these three variabels for population groups by age and gender.
+# Age is divided into bins of 5 years and one bin of 80+ years.
+# The genders are male, female and diverse.
+
+agegroup_gender_data <- GET_AGEGROUP_GENDER_DATA(sormas_persons, population_data)
 ```
 
 ```{r building_tables}
@@ -149,10 +178,11 @@ agegroup_gender_data <- GET_AGEGROUP_GENDER_DATA(d, pop_data)
 # TABLES #
 ##########
 
-## getting overview table
-overview_table <- GET_OVERVIEW_TABLE(master_table = master_table)
+# Building the Overview table of indicators on country level, as well as
+# the state table of indicators on state level. Both tables are built based 
+# on the master_table created above.
 
-## getting state table
+overview_table <- GET_OVERVIEW_TABLE(master_table = master_table)
 state_table <- GET_STATE_TABLE(master_table = master_table)
 ```
 
@@ -196,7 +226,7 @@ text$txt_files....1. <- mgsub(text$txt_files....1., pattern = pattern_vec,
 `r text["OVERVIEW.docx",1]`
 
 ```{r OverviewTable, error=FALSE, message=FALSE, warning=FALSE, tab.cap= "Overview Table"}
-#displaying overview table
+# Displaying the overview table.
 flextable::flextable(overview_table)
 ```
 
@@ -207,19 +237,18 @@ flextable::flextable(overview_table)
 `r text["TIME_SER.docx",1]`
 
 ```{r TimeSeriesData, warning=FALSE, message=FALSE, error=FALSE, fig.cap="Time series data"}
-# plotting timeseries data
+# Plotting the timeseries data, based on the ts_data dataframe.
 PLOT_TIMESERIES(timeseries_data = ts_data)
 ```
-
-\newpage
 
 ## Death incidences by age groups
 `r text["DEATH_INC.docx",1]`
 
 ```{r DeathIncidencesDistribution, warning=FALSE, message=FALSE, error=FALSE, fig.cap ="Death Incidences Distribution"}
 
-# plotting death incidences for genders and age groups 
-# possible variables of interest:
+# Plotting death incidences for genders and age groups, based on the
+# agegroup_gender_data table.
+# We can also plot other possible variables of interest:
 # tot_death_inc = total death incidence
 # tot_hosp_inc = total hospitalization incidence
 # tot_case_inc = total case incidence
@@ -231,26 +260,22 @@ PLOT_AGEGROUP_GENDER(agegroup_gender_data = agegroup_gender_data, voi = "tot_dea
 # Regional Situation
 `r text["REG_SIT.docx",1]`
 
-\newpage
-
 ## State level table
 `r text["STATE_TBL.docx",1]`
 
 ```{r StateLevelTable, warning = FALSE, tab.cap= "State level table", tab.cap="State Level Table"}
-# displaying state table
+# Displaying the state table, based on the master_table.
 flextable::flextable(state_table)
 ```
 
-\newpage
 ## County level map
 `r text["COUNTY_MAP.docx",1]`
 
 ```{r CountyLevelMap, echo = FALSE, warning=FALSE, message=FALSE, fig.cap= "County level map"}
-# displaying county map
+# Displaying the county map, based on the master_table.
 PLOT_COUNTY_MAP(geo_shapes_data = geo_shapes_data)
 ```
 
-\newpage
 
 # Remarks
 `r text["REMARKS.docx",1]`
@@ -264,6 +289,5 @@ Table \@ref(tab:StateLevelTable) and Table \@ref(tab:OverviewTable) show summary
 
 [@dplyrref]
 
-\newpage
 
 # References
