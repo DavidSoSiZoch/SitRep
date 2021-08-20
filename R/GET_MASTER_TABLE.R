@@ -1,12 +1,26 @@
 GET_MASTER_TABLE <- function(population_data,
-                             persons_sormasdata,
+                             sormas_persons,
                              key = matching_key){
-  # depends on the following:
-  # require(tidyr)
-  # require(dplyr)
-  # source("R/GET_POPULATION_DATA.R")
-  # source("R/GET_SORMAS_DATA.R")
-  # source("R/DF0_COUNTY_DATA.R")
+
+  # This function is written based on the packages tidyr and dplyr.
+ 
+  # This funciton depends on the custom defined funcitons
+  # 'GET_POPULATION_DATA.R', 'GET_SORMAS_DATA.R' and 'DF0_COUNTY_DATA.R'
+  # from the R folder.
+  
+  # This function depends on the sormas_persons output of the
+  # 'PREP_SORMAS_DATA.R' function and the population_data ouput of the
+  # 'PREP_POPULATION_DATA.R'.
+  
+  # This function creates a table with data on county level for: 
+  # population, the total number of cases, hsopitalizations and deaths, 
+  # the number of new hospitalizations, cases and deaths,
+  # the values for the 7-day incidence and the the change in the 7-day 
+  # incidence. Additionally, the table also contains the values for the
+  # 7-day incidence and change in the 7-day incidence on state and country
+  # level.
+  
+  #############################################################################
   
   ## POPULATION DATA
   
@@ -25,7 +39,7 @@ GET_MASTER_TABLE <- function(population_data,
   ## SORMAS DATA
   
   #get totals on county level
-  t_c <- GET_SORMAS_DATA(persons_sormasdata,
+  t_c <- GET_SORMAS_DATA(sormas_persons,
                          NEW = FALSE,
                          level = "county",
                          "case_category",
@@ -33,7 +47,7 @@ GET_MASTER_TABLE <- function(population_data,
                          "died")
   
   #get news on county level
-  n_c <- GET_SORMAS_DATA(persons_sormasdata,
+  n_c <- GET_SORMAS_DATA(sormas_persons,
                          NEW = TRUE,
                          level = "county",
                          "case_category",
@@ -82,7 +96,7 @@ GET_MASTER_TABLE <- function(population_data,
     
     
   
-  ###########################################################################
+  #############################################################################
   
   ## CALCULATING INCIDENCES
   
@@ -100,17 +114,17 @@ GET_MASTER_TABLE <- function(population_data,
   #setting date range for week before yesterday
   y_daterange_week <- seq(today-7, by = "day", length.out = 7)
   
-  ############################################################
+  #############################################################################
   
   # 7 DAY INCIDENCE & CHANGE ON COUNTY LVL: NUTS-3
   # 7 DAY INC
-  i7_c <- INCIDENCE7(persons_sormasdata = persons_sormasdata,
+  i7_c <- INCIDENCE7(sormas_persons = sormas_persons,
                            population_data = population_data,
                            daterange = daterange_week,
                            level = "county")
   
   # YESTERDAY'S 7 DAY INC
-  yi7_c <- INCIDENCE7(persons_sormasdata = persons_sormasdata,
+  yi7_c <- INCIDENCE7(sormas_persons = sormas_persons,
                      population_data = population_data,
                      daterange = y_daterange_week,
                      level = "county") %>% 
@@ -126,13 +140,13 @@ GET_MASTER_TABLE <- function(population_data,
  
    # 7 DAY INCIDENCE & CHANGE ON STATE LVL: NUTS-2
   # 7 DAY INC
-  i7_s <- INCIDENCE7(persons_sormasdata = persons_sormasdata,
+  i7_s <- INCIDENCE7(sormas_persons = sormas_persons,
                      population_data = population_data,
                      daterange = daterange_week,
                      level = "state")
   
   # YESTERDAY'S 7 DAY INC
-  yi7_s <- INCIDENCE7(persons_sormasdata = persons_sormasdata,
+  yi7_s <- INCIDENCE7(sormas_persons = sormas_persons,
                       population_data = population_data,
                       daterange = y_daterange_week,
                       level = "state") %>% 
@@ -148,13 +162,13 @@ GET_MASTER_TABLE <- function(population_data,
     
   # 7 DAY INCIDENCE & CHANGE ON COUNTRY LVL: NUTS-1
   # 7 DAY INC
-  i7_country <- INCIDENCE7(persons_sormasdata = persons_sormasdata,
+  i7_country <- INCIDENCE7(sormas_persons = sormas_persons,
                      population_data = population_data,
                      daterange = daterange_week,
                      level = "country")
   
   # YESTERDAY'S 7 DAY INC
-  yi7_country <- INCIDENCE7(persons_sormasdata = persons_sormasdata,
+  yi7_country <- INCIDENCE7(sormas_persons = sormas_persons,
                       population_data = population_data,
                       daterange = y_daterange_week,
                       level = "country") %>% 

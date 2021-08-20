@@ -1,5 +1,13 @@
 PLOT_TIMESERIES <- function(timeseries_data){
-  require(gglot2)
+  
+  # This function is written based on the packages ggplot2 and gridExtra.
+  
+  # This function depends on the output of the 'GET_TIMESERIES_DATA.R' 
+  # function.
+  # It provides a plot that is based on the timeseries data output of the 
+  # 'GET_TIMESERIES_DATA.R' function.
+  
+  #############################################################################
   
   # setting date and daterange
   
@@ -31,6 +39,6 @@ PLOT_TIMESERIES <- function(timeseries_data){
     scale_x_date(date_breaks = "3 months")+
     xlim(as.Date("2020-01-01"), today)
   
-  grid.arrange(p1,p2,p3)
+  gridExtra::grid.arrange(p1,p2,p3)
   
 }

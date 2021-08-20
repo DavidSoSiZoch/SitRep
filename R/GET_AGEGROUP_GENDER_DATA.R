@@ -1,6 +1,17 @@
-GET_AGEGROUP_GENDER_DATA <- function(persons_sormasdata, population_data){
-  require(tidyr)
-  require(dplyr)
+GET_AGEGROUP_GENDER_DATA <- function(sormas_persons, population_data){
+  
+  # This function is written based on the tidyr and dplyr packages.
+  
+  # This funciton depends on the sormas_persons and population_data, for 
+  # this test application.
+  
+  # This function creates a table with data on the total number of cases,
+  # hospitalizations and deaths per population group, as well as the total
+  # incidence of these three variabels for population groups by age and gender.
+  # Age is divided into bins of 5 years and one bin of 80+ years.
+  # The genders are male, female and diverse.
+  
+  #############################################################################
   
   #get dataframe on population in age groups & gender
   pop_df <- population_data %>% 
@@ -11,7 +22,7 @@ GET_AGEGROUP_GENDER_DATA <- function(persons_sormasdata, population_data){
   
   #build base dataframe
   #create df of agegroups 
-  ag_df <- persons_sormasdata %>% 
+  ag_df <- sormas_persons %>% 
     dplyr::group_by(age_group = cut(age, breaks = c(seq(-1,79,5),150))) %>% 
     dplyr::select(age_group) %>% 
     dplyr::distinct() %>% 
@@ -26,7 +37,7 @@ GET_AGEGROUP_GENDER_DATA <- function(persons_sormasdata, population_data){
   # + bind to base df
   
   # CASES
-  ag_data_c <- persons_sormasdata %>% 
+  ag_data_c <- sormas_persons %>% 
     dplyr::group_by(sex, age_group = cut(age, breaks = c(seq(-1,79,5),150))) %>% 
     dplyr::count(case_category) %>% 
     tidyr::pivot_wider(names_from = case_category,
@@ -37,7 +48,7 @@ GET_AGEGROUP_GENDER_DATA <- function(persons_sormasdata, population_data){
 
   
   # HOSP
-  ag_data_h <- persons_sormasdata %>% 
+  ag_data_h <- sormas_persons %>% 
     dplyr::group_by(sex, age_group = cut(age, breaks = c(seq(-1,79,5),150))) %>% 
     dplyr::count(hospitalized) %>% 
     tidyr::pivot_wider(names_from = hospitalized,
@@ -48,7 +59,7 @@ GET_AGEGROUP_GENDER_DATA <- function(persons_sormasdata, population_data){
   
     
   # DIED
-  ag_data_d <- persons_sormasdata %>% 
+  ag_data_d <- sormas_persons %>% 
     dplyr::group_by(sex, age_group = cut(age, breaks = c(seq(-1,79,5),150))) %>% 
     dplyr::count(died) %>% 
     tidyr::pivot_wider(names_from = died,

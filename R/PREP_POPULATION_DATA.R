@@ -1,5 +1,18 @@
-PREP_POPULATION_DATA <- function(data, divers_imputation){
-  require(dplyr)
+PREP_POPULATION_DATA <- function(data, diverse_imputation){
+  
+  # This funciton is written based on the package dplyr.
+  
+  # This function depends on the raw population data from the 
+  # population_data.rda file in the /data folder. 
+  
+  # THis function prepares the raw population data by fitering for the most
+  # recent year and imputing data for the diverse gender.
+  
+  # The imputation for the diverse gender assumes the number of people of
+  # diverse gender is 0.1 % of the female population. The divers imputation 
+  # can also be excluded by setting diverse_imputation = FALSE
+  
+  #############################################################################
   
   #filter for latest year
   pop_data <- data %>% 
@@ -9,7 +22,7 @@ PREP_POPULATION_DATA <- function(data, divers_imputation){
   
   #conditional imputation of divers population data
   # instead use pivot wider -> mutate -> pivot longer
-  if (divers_imputation == TRUE){
+  if (diverse_imputation == TRUE){
   for (i in 1:nrow(pop_data)) {
       if (pop_data[i,"gender"] == "f"){
         df <- data.frame(state = pop_data[i,"state"],

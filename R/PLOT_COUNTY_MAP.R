@@ -1,5 +1,13 @@
 PLOT_COUNTY_MAP <- function(geo_shapes_data){
-  require(ggplot2)
+  
+  # This function is written based on the packages ggplot2, ggspatial
+  # and viridis.
+  
+  # This function depends on the output of the 'PREP_GEO_DATA.R' function.
+  # It provides a map that is based on the output of the 'PREP_GEO_DATA.R'
+  # function.
+  
+  #############################################################################
   
   # build map
   ggplot(geo_shapes_data) +
@@ -11,7 +19,7 @@ PLOT_COUNTY_MAP <- function(geo_shapes_data){
           panel.background = element_rect(fill = "cornsilk", color = "black"))+
     scale_fill_viridis(option= "viridis",
                        name="Seven day incidence") +
-    annotation_north_arrow(location = "br", which_north = "true",
+    ggspatial::annotation_north_arrow(location = "br", which_north = "true",
                            style = north_arrow_fancy_orienteering)
   
 }

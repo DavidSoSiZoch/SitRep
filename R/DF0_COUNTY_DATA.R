@@ -1,4 +1,19 @@
 DF0_COUNTY_DATA <- function(matching_key){
+  
+  # This function depends on the matching key, for this test application
+  # specifically the healthauthority_county_key.
+  
+  # This function creates a dataframe, with the first 3 columns equal to 
+  # the three columns of the matching key. The rest of the dataframe is filled 
+  # with zeros.
+  # Each observation is one county.
+  # The varialbles for each county can be seen from the list of colnames below.
+  # The created dataframe is used later on to be updated with data from the
+  # sormas_persons on the the county level values for each variable
+  # listed below.
+  
+  #############################################################################
+  
   df0 <- data.frame(matrix(0, ncol = 23, nrow = nrow(matching_key)))
   colnames(df0) <- c("state",
                      "county",

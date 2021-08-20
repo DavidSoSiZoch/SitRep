@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = FALSE, tab.cap.style = "Table Caption")
 ```
 
 ```{r load_packages, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
-# loading packages
+# Loading packages that are used for the creation of the report.
 library(plyr)
 library(dplyr)
 library(tidyverse)
@@ -89,7 +89,7 @@ healthauthority_county_key <- readxl::read_xlsx("data/matching_key.xlsx")
 
 load("data/population_data.rda")
 population_data <- PREP_POPULATION_DATA(population_data,
-                                 divers_imputation = TRUE)
+                                 diverse_imputation = TRUE)
 ```
 
 ```{r prep_sormas_data, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE}
@@ -124,7 +124,7 @@ sormas_persons <- PREP_SORMAS_DATA(sormas_persons = sormas_testdata$persons,
 # 7-day incidence and change in the 7-day incidence on state and country level.
 
 master_table <- GET_MASTER_TABLE(population_data = population_data,
-                        persons_sormasdata = sormas_persons,
+                        sormas_persons = sormas_persons,
                         key = healthauthority_county_key)
 ```
 
@@ -188,7 +188,9 @@ state_table <- GET_STATE_TABLE(master_table = master_table)
 
 ```{r values_to_text}
 
-# keys for table values
+# Creating and assigning the keys for table values, which are designed to 
+# replace dynamically changing values from tables in the text in the
+# .docx files, which is then printed in the final report.
 pattern_vec <- c("#Otc",
                  "#Onc",
                  "#Oth",
@@ -213,7 +215,7 @@ replacement_vec <- c(overview_table$`Total cases`,
 
 # pattern and replacement vectors to be imported from separate file
 
-# importing values from data into text
+# Here we import the dynamic values from the tables into text.
 text$txt_files....1. <- mgsub(text$txt_files....1., pattern = pattern_vec,
                               replacement = replacement_vec 
                               ) 

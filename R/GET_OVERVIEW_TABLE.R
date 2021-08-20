@@ -1,5 +1,13 @@
 GET_OVERVIEW_TABLE <- function(master_table){
-require(dplyr)
+  
+  # This function is built using the package dplyr.
+  
+  # This function depends on the master_table created by the
+  # 'GET_MASTER_TABLE.R' function.
+  
+  # This function builds the overview_table from the master_table.
+  
+  #############################################################################
   
   ## building overview table
   overview_table <- master_table %>% 

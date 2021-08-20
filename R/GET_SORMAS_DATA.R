@@ -1,13 +1,18 @@
-GET_SORMAS_DATA <- function(persons_sormasdata,
+GET_SORMAS_DATA <- function(sormas_persons,
                             NEW = FALSE,
                             level = "county",
                             var1 = NULL,
                             var2 = NULL,
                             var3 = NULL){
   
-  require(tidyverse)
-  require(tidyr)
-  require(dplyr)
+  # This funciton is written based on the packages tidyverse, tidyr and dplyr.
+  
+  # This function allows to get a table on either new or total number of
+  # occurrences for up to three variables of interest (typically cases,
+  # hospitalizations and deaths). This can be done on county, state or country
+  # level.
+  
+  #############################################################################
   
   lvl <- enexpr(level)
   vec <- c(enexpr(var1), enexpr(var2), enexpr(var3))
@@ -18,7 +23,7 @@ GET_SORMAS_DATA <- function(persons_sormasdata,
 
       for(i in vec){
 
-        tables[[i]] <- persons_sormasdata %>%
+        tables[[i]] <- sormas_persons %>%
           dplyr::group_by( .data[[lvl]], .data[[i]]) %>%
           dplyr::count()  %>%
           tidyr::pivot_wider(names_from = .data[[i]],
@@ -64,7 +69,7 @@ GET_SORMAS_DATA <- function(persons_sormasdata,
       
     x <- 1
       for (i in df$variables){
-      tables[[i]] <- persons_sormasdata %>%
+      tables[[i]] <- sormas_persons %>%
         dplyr::filter( .data[[ df$date_type[x] ]] == {{ today }} )%>%
         dplyr::group_by( .data[[ lvl ]] ) %>%
         dplyr::count(.data[[ i ]] ) %>%

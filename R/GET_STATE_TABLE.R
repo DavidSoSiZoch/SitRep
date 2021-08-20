@@ -1,5 +1,13 @@
 GET_STATE_TABLE <- function(master_table){
-  require(dplyr)
+  
+  # This funciton is written based on the package dplyr.
+  
+  # This function depends on the master_table created by the
+  # 'GET_MASTER_TABLE.R' function.
+  
+  # This function builds the state_table from the master_table.
+  
+  #############################################################################
   
   ## building state table
   state_table <- master_table %>% 

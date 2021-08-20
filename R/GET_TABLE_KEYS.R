@@ -1,5 +1,9 @@
 GET_TABLE_KEYS <- function(){
   
+  # This function generates the table keys for dynamic values in the text.
+  
+  #############################################################################
+  
   # OVERVIEW TABLE
   
   pattern <- c("#Otc",

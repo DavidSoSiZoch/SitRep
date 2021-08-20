@@ -1,8 +1,17 @@
-INCIDENCE7 <- function(persons_sormasdata, population_data, daterange, level = "country") {
-  require(dplyr)
+INCIDENCE7 <- function(sormas_persons, population_data, daterange, level = "country") {
+  
+  # This function is written based on the package dplyr.
+  
+  # This function depends on the sormas_persons and population_data, for 
+  # this test application.
+  
+  # This function creates a table with the 7 day incidence values on the
+  # requested level ('county', 'state' or 'country').
+  
+  #############################################################################
   
   if(level == "country"){
-  n_cases <- persons_sormasdata %>% 
+  n_cases <- sormas_persons %>% 
       dplyr::filter(reporting_date %in% daterange) %>% 
       dplyr::filter(case_category == "confirmed") %>% 
       dplyr::count() %>% 
@@ -17,7 +26,7 @@ INCIDENCE7 <- function(persons_sormasdata, population_data, daterange, level = "
       dplyr::group_by(state) %>% 
       dplyr::summarise(s_pop = sum(population))
     
-    state_n_cases <- persons_sormasdata %>% 
+    state_n_cases <- sormas_persons %>% 
       dplyr::group_by(state) %>% 
       dplyr::filter(reporting_date %in% daterange) %>% 
       dplyr::filter(case_category == "confirmed") %>% 
@@ -35,7 +44,7 @@ INCIDENCE7 <- function(persons_sormasdata, population_data, daterange, level = "
       dplyr::group_by(county) %>% 
       dplyr::summarise(c_pop = sum(population))
     
-    county_n_cases <- persons_sormasdata %>% 
+    county_n_cases <- sormas_persons %>% 
       dplyr::group_by(county) %>% 
       dplyr::filter(reporting_date %in% daterange) %>% 
       dplyr::filter(case_category == "confirmed") %>% 
