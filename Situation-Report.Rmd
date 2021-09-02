@@ -9,6 +9,7 @@ output:
     fig_width: 7
     fig_height: 6
     fig_caption: yes
+
 bibliography: text/references.bib
 link-citations: yes
 ---
@@ -59,6 +60,7 @@ set_flextable_defaults(big.mark = " ",
   padding.left = 5,
   padding.right = 5,
   background.color = "#EFEFEF")
+
 ```
 
 ```{r text_import}
@@ -187,37 +189,17 @@ state_table <- GET_STATE_TABLE(master_table = master_table)
 ```
 
 ```{r values_to_text}
-
 # Creating and assigning the keys for table values, which are designed to 
 # replace dynamically changing values from tables in the text in the
 # .docx files, which is then printed in the final report.
-pattern_vec <- c("#Otc",
-                 "#Onc",
-                 "#Oth",
-                 "#Onh",
-                 "#Otd",
-                 "#Ond",
-                 "#Oi7",
-                 "#Oc7"
-                 )
 
-replacement_vec <- c(overview_table$`Total cases`,
-                     overview_table$`New cases`,
-                     overview_table$`Total hospitalizations`,
-                     overview_table$`New hospitalizations`,
-                     overview_table$`Total deaths`,
-                     overview_table$`New deaths`,
-                     overview_table$`7 day Incidence`,
-                     overview_table$`Change since yesterday`,
-                     overview_table$`7 Day Incidence`,
-                     overview_table$`Change in 7 day incidence since yesterday`
-                     )
+table_keys <- GET_TABLE_KEYS(overview_table, state_table)
 
-# pattern and replacement vectors to be imported from separate file
-
-# Here we import the dynamic values from the tables into text.
-text$txt_files....1. <- mgsub(text$txt_files....1., pattern = pattern_vec,
-                              replacement = replacement_vec 
+# Here we import the dynamic values from the overview table into text.
+text$txt_files....1. <- mgsub(text$txt_files....1., pattern = 
+                                table_keys[[1]],
+                              replacement =
+                                table_keys[[2]] 
                               ) 
 ```
 
@@ -230,6 +212,9 @@ text$txt_files....1. <- mgsub(text$txt_files....1., pattern = pattern_vec,
 ```{r OverviewTable, error=FALSE, message=FALSE, warning=FALSE, tab.cap= "Overview Table"}
 # Displaying the overview table.
 flextable::flextable(overview_table)
+
+# knitr::kable(overview_table, align = "c", longtable = TRUE) %>% 
+# kableExtra::kable_classic()
 ```
 
 # Epidemic Dynamic
@@ -267,7 +252,13 @@ PLOT_AGEGROUP_GENDER(agegroup_gender_data = agegroup_gender_data, voi = "tot_dea
 
 ```{r StateLevelTable, warning = FALSE, tab.cap= "State level table", tab.cap="State Level Table"}
 # Displaying the state table, based on the master_table.
+# Also works with in case table breaks over two pages. Column names are
+# repeated on the next page
 flextable::flextable(state_table)
+# flextable::flextable(state_table)
+
+# knitr::kable(state_table, align = "c", longtable = TRUE) %>%
+# kableExtra::kable_classic("basic")
 ```
 
 ## County level map
