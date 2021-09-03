@@ -167,6 +167,28 @@ GET_TABLE_KEYS <- function(overview_table, state_table){
                "#THc7"
   )
   
+  
+  
+  vec_list <- list()
+  
+  for (i in 1:16){
+    vec_name <- paste0("vec_",i)
+    
+    vec_name <- c(state_table[['Total cases']][i],
+                  state_table[['New cases']][i],
+                  state_table[['Total hospitalizations']][i],
+                  state_table[['New hospitalizations']][i],
+                  state_table[['Total deaths']][i],
+                  state_table[['New deaths']][i],
+                  state_table[['7 Day Incidence']][i],
+                  state_table[['Change in 7 day incidence since yesterday']][i]  
+    ) 
+    vec_list[[i]] <- vec_name
+    
+  }
+  
+  state_values <- Reduce(c, vec_list)
+  
   replacement <- c(
                    #overview_table keys
                    
@@ -180,150 +202,7 @@ GET_TABLE_KEYS <- function(overview_table, state_table){
                    overview_table$`Change in 7 day incidence since yesterday`,
                    
                    #state_table keys
-                   
-                   state_table[['Total cases']][1],
-                   state_table[['New cases']][1],
-                   state_table[['Total hospitalizations']][1],
-                   state_table[['New hospitalizations']][1],
-                   state_table[['Total deaths']][1],
-                   state_table[['New deaths']][1],
-                   state_table[['7 Day Incidence']][1],
-                   state_table[['Change in 7 day incidence since yesterday']][1],
-                   
-                   state_table[['Total cases']][2],
-                   state_table[['New cases']][2],
-                   state_table[['Total hospitalizations']][2],
-                   state_table[['New hospitalizations']][2],
-                   state_table[['Total deaths']][2],
-                   state_table[['New deaths']][2],
-                   state_table[['7 Day Incidence']][2],
-                   state_table[['Change in 7 day incidence since yesterday']][2],
-                   
-                   state_table[['Total cases']][3],
-                   state_table[['New cases']][3],
-                   state_table[['Total hospitalizations']][3],
-                   state_table[['New hospitalizations']][3],
-                   state_table[['Total deaths']][3],
-                   state_table[['New deaths']][3],
-                   state_table[['7 Day Incidence']][3],
-                   state_table[['Change in 7 day incidence since yesterday']][3],
-                   
-                   state_table[['Total cases']][4],
-                   state_table[['New cases']][4],
-                   state_table[['Total hospitalizations']][4],
-                   state_table[['New hospitalizations']][4],
-                   state_table[['Total deaths']][4],
-                   state_table[['New deaths']][4],
-                   state_table[['7 Day Incidence']][4],
-                   state_table[['Change in 7 day incidence since yesterday']][4],
-                   
-                   state_table[['Total cases']][5],
-                   state_table[['New cases']][5],
-                   state_table[['Total hospitalizations']][5],
-                   state_table[['New hospitalizations']][5],
-                   state_table[['Total deaths']][5],
-                   state_table[['New deaths']][5],
-                   state_table[['7 Day Incidence']][5],
-                   state_table[['Change in 7 day incidence since yesterday']][5],
-                   
-                   state_table[['Total cases']][6],
-                   state_table[['New cases']][6],
-                   state_table[['Total hospitalizations']][6],
-                   state_table[['New hospitalizations']][6],
-                   state_table[['Total deaths']][6],
-                   state_table[['New deaths']][6],
-                   state_table[['7 Day Incidence']][6],
-                   state_table[['Change in 7 day incidence since yesterday']][6],
-                   
-                   state_table[['Total cases']][7],
-                   state_table[['New cases']][7],
-                   state_table[['Total hospitalizations']][7],
-                   state_table[['New hospitalizations']][7],
-                   state_table[['Total deaths']][7],
-                   state_table[['New deaths']][7],
-                   state_table[['7 Day Incidence']][7],
-                   state_table[['Change in 7 day incidence since yesterday']][7],
-                   
-                   state_table[['Total cases']][8],
-                   state_table[['New cases']][8],
-                   state_table[['Total hospitalizations']][8],
-                   state_table[['New hospitalizations']][8],
-                   state_table[['Total deaths']][8],
-                   state_table[['New deaths']][8],
-                   state_table[['7 Day Incidence']][8],
-                   state_table[['Change in 7 day incidence since yesterday']][8],
-                   
-                   state_table[['Total cases']][9],
-                   state_table[['New cases']][9],
-                   state_table[['Total hospitalizations']][9],
-                   state_table[['New hospitalizations']][9],
-                   state_table[['Total deaths']][9],
-                   state_table[['New deaths']][9],
-                   state_table[['7 Day Incidence']][9],
-                   state_table[['Change in 7 day incidence since yesterday']][9],
-                   
-                   state_table[['Total cases']][10],
-                   state_table[['New cases']][10],
-                   state_table[['Total hospitalizations']][10],
-                   state_table[['New hospitalizations']][10],
-                   state_table[['Total deaths']][10],
-                   state_table[['New deaths']][10],
-                   state_table[['7 Day Incidence']][10],
-                   state_table[['Change in 7 day incidence since yesterday']][10],
-                   
-                   state_table[['Total cases']][11],
-                   state_table[['New cases']][11],
-                   state_table[['Total hospitalizations']][11],
-                   state_table[['New hospitalizations']][11],
-                   state_table[['Total deaths']][11],
-                   state_table[['New deaths']][11],
-                   state_table[['7 Day Incidence']][11],
-                   state_table[['Change in 7 day incidence since yesterday']][11],
-                   
-                   state_table[['Total cases']][12],
-                   state_table[['New cases']][12],
-                   state_table[['Total hospitalizations']][12],
-                   state_table[['New hospitalizations']][12],
-                   state_table[['Total deaths']][12],
-                   state_table[['New deaths']][12],
-                   state_table[['7 Day Incidence']][12],
-                   state_table[['Change in 7 day incidence since yesterday']][12],
-                   
-                   state_table[['Total cases']][13],
-                   state_table[['New cases']][13],
-                   state_table[['Total hospitalizations']][13],
-                   state_table[['New hospitalizations']][13],
-                   state_table[['Total deaths']][13],
-                   state_table[['New deaths']][13],
-                   state_table[['7 Day Incidence']][13],
-                   state_table[['Change in 7 day incidence since yesterday']][13],
-                   
-                   state_table[['Total cases']][14],
-                   state_table[['New cases']][14],
-                   state_table[['Total hospitalizations']][14],
-                   state_table[['New hospitalizations']][14],
-                   state_table[['Total deaths']][14],
-                   state_table[['New deaths']][14],
-                   state_table[['7 Day Incidence']][14],
-                   state_table[['Change in 7 day incidence since yesterday']][14],
-                   
-                   state_table[['Total cases']][15],
-                   state_table[['New cases']][15],
-                   state_table[['Total hospitalizations']][15],
-                   state_table[['New hospitalizations']][15],
-                   state_table[['Total deaths']][15],
-                   state_table[['New deaths']][15],
-                   state_table[['7 Day Incidence']][15],
-                   state_table[['Change in 7 day incidence since yesterday']][15],
-                   
-                   state_table[['Total cases']][16],
-                   state_table[['New cases']][16],
-                   state_table[['Total hospitalizations']][16],
-                   state_table[['New hospitalizations']][16],
-                   state_table[['Total deaths']][16],
-                   state_table[['New deaths']][16],
-                   state_table[['7 Day Incidence']][16],
-                   state_table[['Change in 7 day incidence since yesterday']][16]
+                   state_values
   )
   
   

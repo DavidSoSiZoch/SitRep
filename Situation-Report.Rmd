@@ -9,7 +9,6 @@ output:
     fig_width: 7
     fig_height: 6
     fig_caption: yes
-
 bibliography: text/references.bib
 link-citations: yes
 ---
@@ -52,6 +51,8 @@ sapply(function_sources, source)
 ```{r flextable settings, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
 # In this SitRep the package 'flextable' is used to display tables in word.
 # Here we set the default options for the flextable package.
+# The flextable package automatically splits long tables over different pages 
+# and repeats the headings.
 
 set_flextable_defaults(big.mark = " ",
   font.size = 9, theme_fun = theme_vanilla,
@@ -213,7 +214,7 @@ text$txt_files....1. <- mgsub(text$txt_files....1., pattern =
 # Displaying the overview table.
 flextable::flextable(overview_table)
 
-# knitr::kable(overview_table, align = "c", longtable = TRUE) %>% 
+# knitr::kable(overview_table, align = "c", longtable = TRUE) #  %>%
 # kableExtra::kable_classic()
 ```
 
@@ -257,7 +258,7 @@ PLOT_AGEGROUP_GENDER(agegroup_gender_data = agegroup_gender_data, voi = "tot_dea
 flextable::flextable(state_table)
 # flextable::flextable(state_table)
 
-# knitr::kable(state_table, align = "c", longtable = TRUE) %>%
+# knitr::kable(state_table, align = "c", longtable = TRUE) # %>%
 # kableExtra::kable_classic("basic")
 ```
 
