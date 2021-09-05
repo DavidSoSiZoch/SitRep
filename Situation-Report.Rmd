@@ -232,8 +232,7 @@ PLOT_TIMESERIES(timeseries_data = ts_data)
 ## Death incidences by age groups
 `r text["DEATH_INC.docx",1]`
 
-```{r DeathIncidencesDistribution, warning=FALSE, message=FALSE, error=FALSE, fig.cap ="Death Incidences Distribution"}
-
+```{r DeathIncidences, warning=FALSE, message=FALSE, error=FALSE, fig.cap="Death incidences"}
 # Plotting death incidences for genders and age groups, based on the
 # agegroup_gender_data table.
 # We can also plot other possible variables of interest:
@@ -255,11 +254,8 @@ PLOT_AGEGROUP_GENDER(agegroup_gender_data = agegroup_gender_data, voi = "tot_dea
 # Displaying the state table, based on the master_table.
 # Also works with in case table breaks over two pages. Column names are
 # repeated on the next page
-flextable::flextable(state_table)
-# flextable::flextable(state_table)
 
-# knitr::kable(state_table, align = "c", longtable = TRUE) # %>%
-# kableExtra::kable_classic("basic")
+flextable::flextable(state_table)
 ```
 
 ## County level map
@@ -270,7 +266,7 @@ flextable::flextable(state_table)
 PLOT_COUNTY_MAP(geo_shapes_data = geo_shapes_data)
 ```
 
-# Remarks
+# Remarks 
 `r text["REMARKS.docx",1]`
 
 # References
@@ -282,7 +278,16 @@ PLOT_COUNTY_MAP(geo_shapes_data = geo_shapes_data)
 # Then, to define the place of the refence within the text, the user simply 
 # needs to put '[@refname]' in the text of the .docx file where the citation
 # should be. 
+# To cite multiple references at once: '[@refname1;@refname2]'.
 # refname is the BibTex reference name of the paper to be cited.
+
+# For crossreferences to section headings the user needs to type 
+# 'Section \@ref(label)' in the text witin the .docx file in the /text
+# folder.
+# 'label' is the Section ID of the section to be cited, which is defined by
+# through Pandoc as e.g. 'heading-one' for a Section named '# Heading one'.
+# The user can define section IDs by adding '{#userdefinedID}' behind a
+# heading, e.g. '# Heading {#userdefinedID}'.
 
 # For crossreferences to figures the user needs to type 
 # 'Figure \@ref(fig:FigName)' in the text witin the .docx file in the /text

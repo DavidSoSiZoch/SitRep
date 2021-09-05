@@ -11,7 +11,7 @@ PLOT_TIMESERIES <- function(timeseries_data){
   
   # setting date and daterange
   
-  #last date for reportin_date in testdata is 15 of April 2021
+  #last date for reporting_date in testdata is 15 of April 2021
   today = as.Date("2021-04-15")
   
   # in real application instead:
@@ -39,6 +39,6 @@ PLOT_TIMESERIES <- function(timeseries_data){
     scale_x_date(date_breaks = "3 months")+
     xlim(as.Date("2020-01-01"), today)
   
-  gridExtra::grid.arrange(p1,p2,p3)
-  
+ gridExtra::grid.arrange(p1,p2,p3)
+ 
 }
