@@ -213,9 +213,6 @@ text$txt_files....1. <- mgsub(text$txt_files....1., pattern =
 ```{r OverviewTable, error=FALSE, message=FALSE, warning=FALSE, tab.cap= "Overview Table"}
 # Displaying the overview table.
 flextable::flextable(overview_table)
-
-# knitr::kable(overview_table, align = "c", longtable = TRUE) #  %>%
-# kableExtra::kable_classic()
 ```
 
 # Epidemic Dynamic
