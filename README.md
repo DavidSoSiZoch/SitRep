@@ -86,6 +86,13 @@ https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Situationsberichte/
 
 ## Example Images
 
+### Introduction including Overview Table and References
 ![](screenshots/s1.png)
+
+
+### Timeseries data graphs
 ![](screenshots/s2.png)
+
+
+### Choropleth map of county level incidence
 ![](screenshots/s3.png)
