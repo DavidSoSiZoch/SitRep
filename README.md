@@ -84,6 +84,12 @@ https://www.who.int/emergencies/diseases/novel-coronavirus-2019/situation-report
 https://ncdc.gov.ng/diseases/sitreps/?cat=14&name=An%20update%20of%20COVID-19%20outbreak%20in%20Nigeria
 https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Situationsberichte/Gesamt.html
 
+## To-Do / Potential Extensions
+
+- Splitting the figures up into one figure for each individual graphs. Right now three graphs are contained in one figure. This would increase layout flexibility.
+
+- Outputting the graphs in a format that is editable within word. 
+
 ## Example Images
 
 ### Introduction including Overview Table and References
