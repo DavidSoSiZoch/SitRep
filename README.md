@@ -71,11 +71,11 @@ For crossreferences to section headings the user needs to type 'Section \@ref(la
 'label' is the Section ID of the section to be cited, which is defined by through Pandoc as e.g. 'heading-one' for a Section named '# Heading one'. The user can define section IDs by adding '{#userdefinedID}' behind a heading, e.g. '# Heading {#userdefinedID}'.
 
 ***Crossreferences to figures***
-For crossreferences to figures the user needs to type 'Figure \@ref(fig:FigName)' in the text witin the .docx file in the /text folder. FigName is the name of the figure to be cited, which is defined in the chunk options of this Situation-Report.Rmd file.
+For crossreferences to figures the user needs to type 'Figure \@ref(fig:FigName)' in the text witin the .docx file in the /text folder. FigName is the name of the figure to be cited, which is defined in the chunk options of the Situation-Report.Rmd file.
 
 ***Crossreferences to tables***
 For crossreferences to tables the user needs to type 'Table \@ref(tab:TabName)' in the text witin the .docx file in the /text
-folder. TabName is the name of the table to be cited, which is defined in the chunk options of this Situation-Report.Rmd file.
+folder. TabName is the name of the table to be cited, which is defined in the chunk options of the Situation-Report.Rmd file.
 
 ## Situation Report References
 
@@ -83,3 +83,9 @@ The Covid-19 situation reports of the RKI, NCDC and WHO served as references for
 https://www.who.int/emergencies/diseases/novel-coronavirus-2019/situation-reports
 https://ncdc.gov.ng/diseases/sitreps/?cat=14&name=An%20update%20of%20COVID-19%20outbreak%20in%20Nigeria
 https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Situationsberichte/Gesamt.html
+
+## Example Images
+
+![](screenshots/s1.png)
+![](screenshots/s2.png)
+![](screenshots/s3.png)
