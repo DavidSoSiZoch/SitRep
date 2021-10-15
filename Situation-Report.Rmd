@@ -12,6 +12,10 @@ output:
 bibliography: text/references.bib
 link-citations: yes
 ---
+```{r include = FALSE}
+# TEST BRANCHING
+```
+
 ```{r setup, include = FALSE}
 # setting knitr chunk options
 knitr::opts_chunk$set(echo = FALSE, tab.cap.style = "Table Caption")
